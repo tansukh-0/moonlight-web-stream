@@ -1,4 +1,4 @@
-**This is a specialized fork of `MrCreativ3001/moonlight-web-stream` for FaxFlash.**
+**This is a specialized fork of [MrCreativ3001/moonlight-web-stream](https://github.com/MrCreativ3001/moonlight-web-stream) for FaxFlash.**
 # Moonlight Web
 An unofficial [Moonlight Client](https://moonlight-stream.org/) allowing you to stream your pc to the Web.
 It hosts a Web Server which will forward [Sunshine](https://docs.lizardbyte.dev/projects/sunshine/latest/) traffic to a Browser using the [WebRTC Api](https://webrtc.org/).
@@ -549,11 +549,16 @@ Changes:
 - removed `webrtc.network_types` setting in the config
 
 ## Contributors
-Thanks to everyone who contributed to make this software better :).
+
+### Original Project
+Thanks to everyone who contributed to make the original software better :). [MrCreativ3001/moonlight-web-stream](https://github.com/MrCreativ3001/moonlight-web-stream).
 
 <a href = "https://github.com/Tanu-N-Prabhu/Python/graphs/contributors">
   <img src = "https://contrib.rocks/image?repo=MrCreativ3001/moonlight-web-stream"/>
 </a>
+
+### This Fork
+Fork maintainer: [tansukh-0](https://github.com/tansukh-0)
 
 ## Building
 Clone this repository:
