@@ -1111,11 +1111,7 @@ class ViewerSidebar implements Component, Sidebar {
                 }
             }
 
-            if (window.matchMedia('(display-mode: standalone)').matches) {
-                history.back()
-            } else {
-                window.close()
-            }
+            window.location.replace("/");
 
         })
         this.buttonDiv.appendChild(this.exitStreamButton)
