@@ -65,6 +65,9 @@ async fn main() {
         }
     };
     cli.options.apply(&mut config);
+    let pair_local = cli.pair_local;
+    let username = cli.username.clone();
+    let password = cli.password.clone();
 
     match cli.command {
         Some(Command::Config(ConfigCommand::Print)) => {
@@ -100,6 +103,17 @@ async fn main() {
     rustls::crypto::ring::default_provider()
         .install_default()
         .expect("failed to set ring crypto provider as default");
+
+
+    if pair_local {
+        let result = pair_local_host(&config, username, password).await;
+        drop(guard);
+        if let Err(err) = result {
+            error!("failed to pair local host: {err:?}");
+            std::process::exit(1);
+        }
+        return;
+    }
 
     // Start the server
     if let Err(err) = start(config).await {
@@ -313,6 +327,46 @@ async fn start(config: Config) -> Result<(), anyhow::Error> {
     } else {
         server.bind(bind_address)?.run().await?;
     }
+
+    Ok(())
+}
+
+
+
+async fn pair_local_host(config: &Config, username: Option<String>, password: Option<String>) -> Result<(), anyhow::Error>  {
+    use crate::app::{ App, auth::UserAuth};
+    use moonlight_common::{ crypto::rustcrypto::RustCryptoBackend, http::pair::PairPin };
+
+    let app = App::new(config.clone()).await?;
+
+
+    let auth = match (username, password) {
+        (Some(username), Some(password)) => UserAuth::UserPassword { username, password },
+        (None, None) => UserAuth::None,
+        _ => anyhow::bail!("--username and --password must be provided together")
+    };
+    let mut user = app.user_by_auth(auth).await?;
+
+     let address = "127.0.0.1".to_string();
+     let http_port = config.moonlight.default_http_port;
+
+     let mut host = user.host_add(address, http_port).await?;
+
+     let pin = PairPin::new_random(&RustCryptoBackend)?;
+
+    println!("Enter this pin in Sunshine to pair:");
+    println!();
+    println!("    {pin}");
+    println!();
+    println!("Press Enter once you entered the pin in Sunshine...");
+
+
+    host.pair(&mut user, pin).await?;
+
+    tokio::time::sleep(std::time::Duration::from_millis(250)).await;
+
+    let detailed = host.detailed_host(&mut user).await?;
+    println!("Successfully paired \"{}\" ({}:{})", detailed.name, detailed.address, detailed.http_port);
 
     Ok(())
 }

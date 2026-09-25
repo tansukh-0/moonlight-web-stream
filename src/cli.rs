@@ -52,6 +52,17 @@ pub struct Cli {
     #[arg(short, long, default_value = "./server/config.json")]
     pub config_path: String,
 
+    //added for faxflash project
+    #[arg(long)]
+    pub pair_local: bool,
+
+    #[arg(long, env = "PAIR_USERNAME", requires = "pair_local")]
+    pub username: Option<String>,
+
+    /// Password of the user from --username.
+    #[arg(long, env = "PAIR_PASSWORD", requires = "pair_local")]
+    pub password: Option<String>,
+
     #[command(flatten)]
     pub options: CliConfig,
 
