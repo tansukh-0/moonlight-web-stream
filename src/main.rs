@@ -1,4 +1,4 @@
-use crate::{cli::ConfigCommand, config::Config};
+use crate::{app::AppError, cli::ConfigCommand, config::Config};
 use rustls::{
     ServerConfig,
     pki_types::{CertificateDer, PrivateKeyDer, pem::PemObject},
@@ -340,12 +340,23 @@ async fn pair_local_host(
 
     let app = App::new(config.clone()).await?;
 
-    let auth = match (username, password) {
-        (Some(username), Some(password)) => UserAuth::UserPassword { username, password },
-        (None, None) => UserAuth::None,
+    let mut user = match (username, password) {
+        (Some(username), Some(password)) => {
+            match app
+                .user_by_auth(UserAuth::UserPassword {
+                    username: username.clone(),
+                    password: password.clone(),
+                })
+                .await
+            {
+                Ok(user) => user,
+                Err(AppError::UserNotFound) => app.try_add_first_login(username, password).await?,
+                Err(err) => return Err(err.into()),
+            }
+        }
+        (None, None) => app.user_by_auth(UserAuth::None).await?,
         _ => anyhow::bail!("--username and --password must be provided together"),
     };
-    let mut user = app.user_by_auth(auth).await?;
 
     let address = "127.0.0.1".to_string();
     let http_port = config.moonlight.default_http_port;
