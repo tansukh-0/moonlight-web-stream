@@ -354,11 +354,14 @@ async fn pair_local_host(
 
     let pin = PairPin::new_random(&RustCryptoBackend)?;
 
-    println!("Enter this pin in Sunshine to pair:");
-    println!();
-    println!("    {pin}");
-    println!();
-    println!("Press Enter once you entered the pin in Sunshine...");
+    let device_name = config.moonlight.pair_device_name.clone();
+
+    println!("Sunshine → open PIN page: https://localhost:47990/pin");
+    println!("  1) select  \"{device_name}\" in dropdown");
+    println!("  2) Enter PIN:         {pin}");
+    println!("  3) Enter Device name \"{device_name}\" in Device Name field ");
+    println!("  4) Click Send");
+
 
     host.pair(&mut user, pin).await?;
 
