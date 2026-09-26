@@ -362,7 +362,6 @@ async fn pair_local_host(
     println!("  3) Enter Device name \"{device_name}\" in Device Name field ");
     println!("  4) Click Send");
 
-
     host.pair(&mut user, pin).await?;
 
     tokio::time::sleep(std::time::Duration::from_millis(250)).await;
